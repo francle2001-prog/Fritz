@@ -24,8 +24,8 @@ app.use("/api/", limiter);
 
 // ── Supabase (for auth verification) ─────────────────────────────────────────
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY // service key — never sent to frontend
+  process.env.SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_KEY || ""
 );
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
@@ -148,5 +148,5 @@ app.get("/api/progress", requireAuth, async (req, res) => {
   res.json({ profile: data?.profile || null });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Fritz backend running on port ${PORT}`));
