@@ -28,7 +28,7 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter basename="/fritz">
+    <BrowserRouter basename="/Fritz">
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
