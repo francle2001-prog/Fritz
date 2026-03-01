@@ -53,29 +53,33 @@ app.post("/api/chat", requireAuth, async (req, res) => {
   }
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1200,
-        system: systemPrompt,
-        messages,
-      }),
-    });
+    const geminiMessages = messages.map(m => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }]
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: geminiMessages,
+          generationConfig: { maxOutputTokens: 1200, temperature: 0.85 }
+        }),
+      }
+    );
 
     if (!response.ok) {
       const err = await response.text();
-      console.error("Claude API error:", err);
+      console.error("Gemini API error:", err);
       return res.status(502).json({ error: "AI service error" });
     }
 
     const data = await response.json();
-    res.json({ content: data.content });
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Entschuldigung, something went wrong!";
+    res.json({ content: [{ type: "text", text }] });
   } catch (e) {
     console.error("Chat error:", e);
     res.status(500).json({ error: "Server error" });
