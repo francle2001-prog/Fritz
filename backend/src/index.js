@@ -149,4 +149,5 @@ app.get("/api/progress", requireAuth, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
+console.log("All env vars:", JSON.stringify({PORT: process.env.PORT, SUPABASE_URL: process.env.SUPABASE_URL ? "set" : "missing"}));
 app.listen(PORT, "0.0.0.0", () => console.log(`Fritz backend running on port ${PORT}`));
